@@ -17,6 +17,7 @@ set(cmake_build_static 'On')
 set(cmake_buildtype static)
 set(cmake_modesubdir _64)
 set(cmakedir "${compiler}/${cmake_buildtype}/${CMAKE_SYSTEM_NAME}${cmake_modesubdir}/${cmake_buildmode}")
+set(pdf_handler_dir "${XMPROOT}/XMPFilesPlugins/PDF_Handler/macintosh/intel${cmake_modesubdir}")
 # cmakeconfigdir="../../../../."
 
 ExternalProject_Add(
@@ -26,6 +27,12 @@ ExternalProject_Add(
   CMAKE_GENERATOR ${CMAKE_GENERATOR}
   CMAKE_ARGS --debug "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/XMPSDK" "-DCMAKE_CL_64=${cmake_buildbitdepth}" "-DCMAKE_BUILD_TYPE=${cmake_buildmode}" "-DXMP_CMAKEFOLDER_NAME=${cmakedir}" "-DXMP_BUILD_STATIC=${cmake_build_static}" "-DCMAKE_TOOLCHAIN_FILE=${XMPROOT}/build/shared/${TOOLCHAIN}"
   INSTALL_COMMAND cmake -E echo "Skipping install step."
+)
+
+add_custom_command(TARGET XMPSDK POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+      "${pdf_handler_dir}"
+      "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/xfplugins"
 )
 
 set(XMP_SDK_CXX_FLAGS "-I${XMPROOT}/public/include -DMAC_ENV")

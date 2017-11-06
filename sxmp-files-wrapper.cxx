@@ -1,9 +1,21 @@
 #include "node-xmp.h"
+#include <dlfcn.h>
 
 using namespace std;
 
+string getModuleDir(){
+  Dl_info dl_info;
+  dladdr((void *)SXMPFilesWrapper::Init, &dl_info);
+  string moduleDir(dl_info.dli_fname);
+  size_t lastSlash = moduleDir.rfind('/');
+  moduleDir.erase(lastSlash + 1);
+  return moduleDir;
+}
+
 NAN_MODULE_INIT(SXMPFilesWrapper::Init) {
-  SXMPFiles::Initialize("XMP-Toolkit-SDK-CC201607/XMPFilesPlugins/PDF_Handler/macintosh");
+  string moduleDir = getModuleDir();
+  moduleDir += "xfplugins/";
+  SXMPFiles::Initialize(moduleDir.data());
 
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("XMPFile").ToLocalChecked());
