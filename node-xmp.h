@@ -20,3 +20,5 @@ class SXMPMetaWrapper : public Nan::ObjectWrap {
     static Nan::Persistent<v8::Function> constructor;
     SXMPMeta meta;
 };
+
+v8::Local<v8::Object> BuildNsMap();

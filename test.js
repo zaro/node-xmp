@@ -24,5 +24,7 @@ const rdf=`
        </rdf:RDF>
 `
 
-m = xmp.SXMPMeta(rdf)
+m = xmp.XMPMeta(rdf)
 console.log(m.Serialize());
+
+console.log(xmp.namespaces);

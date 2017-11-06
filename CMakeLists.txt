@@ -41,5 +41,5 @@ set(CMAKE_MODULE_LINKER_FLAGS "${XMP_SDK_LD_FLAGS}")
 set(CMAKE_SHARED_LINKER_FLAGS "${XMP_SDK_LD_FLAGS}")
 set(CMAKE_STATIC_LINKER_FLAGS "${XMP_SDK_LD_FLAGS}")
 
-add_nodejs_module(${PROJECT_NAME} node-xmp.cxx node-xmp.h)
+add_nodejs_module(${PROJECT_NAME} node-xmp.cxx sxmp-meta-wrapper.cxx xmp-ns.cxx node-xmp.h)
 add_dependencies(${PROJECT_NAME} XMPSDK)
