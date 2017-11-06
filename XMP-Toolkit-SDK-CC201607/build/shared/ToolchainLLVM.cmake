@@ -7,12 +7,12 @@
 # of the Adobe license agreement accompanying it.
 # =================================================================================================
 
-# Toolchain 
+# Toolchain
 
 # Force XCode to use specific compiler
 # options are "4.0", "4.2", "com.apple.compilers.llvmgcc42", "com.intel.compilers.icc.12_1_0", "com.apple.compilers.llvm.clang.1_0"
 set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
 
-# SDK and deployment 
-set(XMP_OSX_SDK		 	10.11)
+# SDK and deployment
+set(XMP_OSX_SDK		 	10.12)
 set(XMP_OSX_TARGET	 	10.9)

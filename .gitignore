@@ -1,1 +1,3 @@
 node_modules/
+build/
+XMP-Toolkit-SDK-CC201607/public/libraries/*
