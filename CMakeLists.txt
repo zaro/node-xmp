@@ -29,7 +29,7 @@ ExternalProject_Add(
 )
 
 set(XMP_SDK_CXX_FLAGS "-I${XMPROOT}/public/include -DMAC_ENV")
-set(XMP_SDK_LD_FLAGS "-L${XMPROOT}/public/libraries/macintosh/intel_64/debug -lXMPCoreStatic")
+set(XMP_SDK_LD_FLAGS "-L${XMPROOT}/public/libraries/macintosh/intel_64/debug -lXMPCoreStatic -lXMPFilesStatic")
 
 set(CMAKE_CXX_FLAGS_DEBUG "${XMP_SDK_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_MINSIZEREL "${XMP_SDK_CXX_FLAGS}")
@@ -41,5 +41,5 @@ set(CMAKE_MODULE_LINKER_FLAGS "${XMP_SDK_LD_FLAGS}")
 set(CMAKE_SHARED_LINKER_FLAGS "${XMP_SDK_LD_FLAGS}")
 set(CMAKE_STATIC_LINKER_FLAGS "${XMP_SDK_LD_FLAGS}")
 
-add_nodejs_module(${PROJECT_NAME} node-xmp.cxx sxmp-meta-wrapper.cxx xmp-ns.cxx node-xmp.h)
+add_nodejs_module(${PROJECT_NAME} node-xmp.cxx sxmp-meta-wrapper.cxx sxmp-files-wrapper.cxx xmp-constants.cxx node-xmp.h)
 add_dependencies(${PROJECT_NAME} XMPSDK)

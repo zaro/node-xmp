@@ -74,3 +74,18 @@ v8::Local<v8::Object> BuildNsMap() {
 
   return obj;
 }
+
+#define ADD_ITER_OPT_TO_MAP_O(name, obj) \
+  obj->Set(Nan::New(#name).ToLocalChecked(), Nan::New(kXMP_Iter ## name))
+
+#define ADD_ITER_OPT_TO_MAP(name) ADD_ITER_OPT_TO_MAP_O(name, obj)
+
+v8::Local<v8::Object> BuildIteratorOptions() {
+  v8::Local<v8::Object> obj = Nan::New<v8::Object>();
+  ADD_ITER_OPT_TO_MAP(JustChildren);
+  ADD_ITER_OPT_TO_MAP(JustLeafNodes);
+  ADD_ITER_OPT_TO_MAP(JustLeafName);
+  ADD_ITER_OPT_TO_MAP(OmitQualifiers);
+
+  return obj;
+}

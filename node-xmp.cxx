@@ -13,9 +13,13 @@ NAN_MODULE_INIT(InitAll){
     Nan::New("namespaces").ToLocalChecked(),
     BuildNsMap()
   );
+  Nan::Set(
+    target,
+    Nan::New("iteratorOptions").ToLocalChecked(),
+    BuildIteratorOptions()
+  );
   SXMPMetaWrapper::Init(target);
-
-  SXMPMeta::Initialize();
+  SXMPFilesWrapper::Init(target);
 }
 
 

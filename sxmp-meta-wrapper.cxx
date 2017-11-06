@@ -1,14 +1,16 @@
 #include "node-xmp.h"
 
-using namespace v8;
 using namespace std;
 
 NAN_MODULE_INIT(SXMPMetaWrapper::Init) {
+  SXMPMeta::Initialize();
+
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("XMPMeta").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
   Nan::SetPrototypeMethod(tpl, "Serialize", Serialize);
+  Nan::SetPrototypeMethod(tpl, "Properties", Properties);
 
   constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
   Nan::Set(target, Nan::New("XMPMeta").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
@@ -23,20 +25,25 @@ SXMPMetaWrapper::SXMPMetaWrapper(const char *buffer, size_t buffer_len)
   : meta(buffer, buffer_len) {
 }
 
+SXMPMetaWrapper::SXMPMetaWrapper(const SXMPMeta& other)
+  : meta(other) {
+}
+
+
 SXMPMetaWrapper::~SXMPMetaWrapper() {
 }
 
 NAN_METHOD(SXMPMetaWrapper::New) {
   if (info.IsConstructCall()) {
     // Invoked as constructor: `new MyObject(...)`
-    Nan::MaybeLocal<v8::String> maybeString = Nan::To<String>(info[0]);
+    Nan::MaybeLocal<v8::String> maybeString = Nan::To<v8::String>(info[0]);
     SXMPMetaWrapper *obj;
     if(maybeString.IsEmpty()){
       obj = new SXMPMetaWrapper();
     } else {
-      v8::Local<String> value;
+      v8::Local<v8::String> value;
       maybeString.ToLocal(&value);
-      char buffer[value->Utf8Length()];
+      char buffer[value->Utf8Length() + 1];
       value->WriteUtf8(buffer);
       obj = new SXMPMetaWrapper(buffer, value->Utf8Length());
     }
@@ -55,8 +62,23 @@ NAN_METHOD(SXMPMetaWrapper::Serialize) {
   SXMPMetaWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(info.This());
   string xmpBuffer;
   obj->meta.SerializeToBuffer(&xmpBuffer);
-  Nan::MaybeLocal<String> rval = Nan::New<String>(xmpBuffer);
-  v8::Local<Value> value;
+  Nan::MaybeLocal<v8::String> rval = Nan::New<v8::String>(xmpBuffer);
+  v8::Local<v8::Value> value;
   rval.ToLocal(&value);
   info.GetReturnValue().Set(value);
+}
+
+
+NAN_METHOD(SXMPMetaWrapper::Properties) {
+  Nan::Maybe<XMP_OptionBits> maybeOpts = Nan::To<XMP_OptionBits>(info[0]);
+
+  SXMPMetaWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(info.This());
+  v8::Local<v8::Object> rval = Nan::New<v8::Object>();
+  size_t idx = 0;
+  SXMPIterator iter( obj->meta , maybeOpts.FromMaybe(0));
+  string schemaNS, propPath, propVal;
+  while( iter.Next( &schemaNS, &propPath, &propVal )){
+    rval->Set(Nan::New(propPath).ToLocalChecked(), Nan::New(propVal).ToLocalChecked());
+  }
+  info.GetReturnValue().Set(rval);
 }
