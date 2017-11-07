@@ -18,9 +18,14 @@ NAN_MODULE_INIT(InitAll){
     Nan::New("iteratorOptions").ToLocalChecked(),
     BuildIteratorOptions()
   );
+  Nan::Set(
+    target,
+    Nan::New("fileFlags").ToLocalChecked(),
+    BuildFileOptions()
+  );
+
   SXMPMetaWrapper::Init(target);
   SXMPFilesWrapper::Init(target);
 }
-
 
 NODE_MODULE(xmp, InitAll)

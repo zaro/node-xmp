@@ -89,3 +89,38 @@ v8::Local<v8::Object> BuildIteratorOptions() {
 
   return obj;
 }
+
+
+#define ADD_OPT_BIT_TO_MAP_O(name, obj) \
+  obj->Set(Nan::New(#name).ToLocalChecked(), Nan::New(kXMPFiles_ ## name))
+
+#define ADD_OPT_BIT_TO_MAP(name) ADD_OPT_BIT_TO_MAP_O(name, obj)
+
+v8::Local<v8::Object> BuildFileOptions() {
+  v8::Local<v8::Object> obj = Nan::New<v8::Object>();
+
+  /// Open for read-only access.
+  ADD_OPT_BIT_TO_MAP(OpenForRead);
+  /// Open for reading and writing.
+  ADD_OPT_BIT_TO_MAP(OpenForUpdate);
+  /// Only the XMP is wanted, allows space/time optimizations.
+  ADD_OPT_BIT_TO_MAP(OpenOnlyXMP);
+  /// Force use of the given handler (format), do not even verify the format.
+  ADD_OPT_BIT_TO_MAP(ForceGivenHandler);
+  /// Be strict about only attempting to use the designated file handler, no fallback to other handlers.
+  ADD_OPT_BIT_TO_MAP(OpenStrictly);
+  /// Require the use of a smart handler.
+  ADD_OPT_BIT_TO_MAP(OpenUseSmartHandler);
+  /// Force packet scanning, do not use a smart handler.
+  ADD_OPT_BIT_TO_MAP(OpenUsePacketScanning);
+  /// Only packet scan files "known" to need scanning.
+  ADD_OPT_BIT_TO_MAP(OpenLimitedScanning);
+  /// Attempt to repair a file opened for update, default is to not open (throw an exception).
+  ADD_OPT_BIT_TO_MAP(OpenRepairFile);
+  /// When updating a file, spend the effort necessary to optimize file layout.
+  ADD_OPT_BIT_TO_MAP(OptimizeFileLayout);
+  /// Write into a temporary file and swap for crash safety.
+  ADD_OPT_BIT_TO_MAP(UpdateSafely);
+
+  return obj;
+}

@@ -32,17 +32,33 @@ const rdf=`
 //   console.log(v);
 //   console.log(m.Properties(xmp.iteratorOptions[v]));
 // }
-
+filename = 'XMPSpecificationPart1.pdf'
 f = xmp.XMPFile()
-f.OpenFile('XMP-Toolkit-SDK-CC201607/docs/XMPSpecificationPart1.pdf')
+//console.log('IsMetadataWritable=', f.IsMetadataWritable(filename))
+f.OpenFile(filename, xmp.fileFlags.OpenForUpdate)
 //f.OpenFile('XMP-Toolkit-SDK-CC201607/docs/API/arrowdown.png')
 console.log(f.GetFileInfo());
 m = f.GetXMP()
-console.log(m.Serialize());
-console.log(m.Properties());
-for(let v in xmp.iteratorOptions){
-  console.log(v);
-  console.log(m.Properties(xmp.iteratorOptions[v]));
+//console.log(m.Serialize());
+props = m.ListProperties()
+for(let prop of props){
+    let v = m.GetProperty(prop.ns, prop.path);
+    console.log(prop.path, v, prop.value === v);
+    let match = prop.path.match(/\[(\d+)\]$/);
+    if(match){
+      let v = m.GetArrayItem(prop.ns, prop.path.replace(/\[(\d+)\]/, ''), match[1]);
+      console.log('GetArrayItem =', v);
+    }
 }
+
+// em = xmp.XMPMeta()
+// console.log('CanPutXMP=', f.CanPutXMP(em));
+// f.PutXMP(em)
+// f.CloseFile()
+
+// for(let v in xmp.iteratorOptions){
+//   console.log(v);
+//   console.log(m.ListProperties(xmp.iteratorOptions[v]));
+// }
 
 //console.log(xmp.namespaces);
