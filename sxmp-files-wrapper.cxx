@@ -15,6 +15,7 @@ string getModuleDir(){
 NAN_MODULE_INIT(SXMPFilesWrapper::Init) {
   string moduleDir = getModuleDir();
   moduleDir += "xfplugins/";
+  // printf("moduleDir: %s\n", moduleDir.data());
   SXMPFiles::Initialize(moduleDir.data());
 
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
@@ -127,13 +128,18 @@ NAN_METHOD(SXMPFilesWrapper::GetXMP) {
   XMP_PacketInfo xmpPacket;
 
   SXMPFilesWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPFilesWrapper>(info.This());
-  bool ok = obj->files.GetXMP ( &xmpMetaWrapper->meta, 0, 0 );
+  try {
+    bool ok = obj->files.GetXMP ( &xmpMetaWrapper->meta, 0, 0 );
 
-  if(ok){
-    info.GetReturnValue().Set(metaWrapped);
-  } else {
-    info.GetReturnValue().Set(Nan::Null());
+    if(ok){
+      info.GetReturnValue().Set(metaWrapped);
+    } else {
+      info.GetReturnValue().Set(Nan::Null());
+    }
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
   }
+
 }
 
 NAN_METHOD(SXMPFilesWrapper::PutXMP) {

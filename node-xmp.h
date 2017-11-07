@@ -77,3 +77,4 @@ class SXMPFilesWrapper : public Nan::ObjectWrap {
 v8::Local<v8::Object> BuildNsMap();
 v8::Local<v8::Object> BuildIteratorOptions();
 v8::Local<v8::Object> BuildFileOptions();
+v8::Local<v8::Object> BuildSerializeOptions();

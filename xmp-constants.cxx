@@ -21,7 +21,6 @@ v8::Local<v8::Object> BuildNsMap() {
   ADD_NS_TO_MAP(EXIF_Aux);
   ADD_NS_TO_MAP(TIFF);
   ADD_NS_TO_MAP(PNG);
-  ADD_NS_TO_MAP(SWF);
   ADD_NS_TO_MAP(JPEG);
   ADD_NS_TO_MAP(JP2K);
   ADD_NS_TO_MAP(CameraRaw);
@@ -86,6 +85,45 @@ v8::Local<v8::Object> BuildIteratorOptions() {
   ADD_ITER_OPT_TO_MAP(JustLeafNodes);
   ADD_ITER_OPT_TO_MAP(JustLeafName);
   ADD_ITER_OPT_TO_MAP(OmitQualifiers);
+
+  return obj;
+}
+
+#define ADD_SER_OPT_TO_MAP_O(name, obj) \
+  obj->Set(Nan::New(#name).ToLocalChecked(), Nan::New(kXMP_ ## name))
+
+#define ADD_SER_OPT_TO_MAP(name) ADD_SER_OPT_TO_MAP_O(name, obj)
+
+v8::Local<v8::Object> BuildSerializeOptions() {
+  v8::Local<v8::Object> obj = Nan::New<v8::Object>();
+  /// Omit the XML packet wrapper.
+  ADD_SER_OPT_TO_MAP(OmitPacketWrapper);
+  /// Default is a writeable packet.
+  ADD_SER_OPT_TO_MAP(ReadOnlyPacket);
+  /// Use a compact form of RDF.
+  ADD_SER_OPT_TO_MAP(UseCompactFormat);
+  /// Use a canonical form of RDF.
+  ADD_SER_OPT_TO_MAP(UseCanonicalFormat);
+  /// Include a padding allowance for a thumbnail image.
+  ADD_SER_OPT_TO_MAP(IncludeThumbnailPad);
+  /// The padding parameter is the overall packet length.
+  ADD_SER_OPT_TO_MAP(ExactPacketLength);
+  /// Omit all formatting whitespace.
+  ADD_SER_OPT_TO_MAP(OmitAllFormatting);
+  /// Omit the x:xmpmeta element surrounding the rdf:RDF element.
+  ADD_SER_OPT_TO_MAP(OmitXMPMetaElement);
+  /// Include a rdf Hash and Merged flag in x:xmpmeta element.
+  ADD_SER_OPT_TO_MAP(IncludeRDFHash);
+  /// Use UTF8 encoding
+  ADD_SER_OPT_TO_MAP(EncodeUTF8);
+  /// Use UTF16 big-endian encoding
+  ADD_SER_OPT_TO_MAP(EncodeUTF16Big);
+  /// Use UTF16 little-endian encoding
+  ADD_SER_OPT_TO_MAP(EncodeUTF16Little);
+  /// Use UTF32 big-endian encoding
+  ADD_SER_OPT_TO_MAP(EncodeUTF32Big);
+  /// Use UTF13 little-endian encoding
+  ADD_SER_OPT_TO_MAP(EncodeUTF32Little);
 
   return obj;
 }

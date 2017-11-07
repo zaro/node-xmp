@@ -1,1 +1,1 @@
-module.exports = require('node-cmake')('xmp')
+module.exports = require('node-cmake')('./xmp')

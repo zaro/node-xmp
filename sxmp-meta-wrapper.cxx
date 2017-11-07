@@ -19,7 +19,7 @@ struct XmpProperty {
 };
 
 #define ARG_LEN_CHECK(methodName, numArgs) \
-  if (info.Length() < 2) { Nan::ThrowError(methodName " must be called with "" arguments"); }
+  if (info.Length() < numArgs) { Nan::ThrowError(methodName " must be called with " #numArgs " argument(s)"); }
 
 
 NAN_MODULE_INIT(SXMPMetaWrapper::Init) {
@@ -118,7 +118,11 @@ NAN_METHOD(SXMPMetaWrapper::DeleteNamespace){
   ARG_LEN_CHECK("DeleteNamespace", 1);
   v8::String::Utf8Value namespaceURI(Nan::To<v8::String>(info[0]).ToLocalChecked());
 
-  SXMPMeta::DeleteNamespace(*namespaceURI);
+  try {
+    SXMPMeta::DeleteNamespace(*namespaceURI);
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
+  }
 }
 
 
@@ -145,9 +149,12 @@ NAN_METHOD(SXMPMetaWrapper::New) {
 }
 
 NAN_METHOD(SXMPMetaWrapper::Serialize) {
+  XMP_OptionBits serializeOpts = Nan::To<XMP_OptionBits>(info[0]).FromMaybe(0);
+  XMP_StringLen padding = Nan::To<XMP_OptionBits>(info[1]).FromMaybe(0);
+
   SXMPMetaWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(info.This());
   string xmpBuffer;
-  obj->meta.SerializeToBuffer(&xmpBuffer);
+  obj->meta.SerializeToBuffer(&xmpBuffer, serializeOpts, padding);
   info.GetReturnValue().Set(Nan::New<v8::String>(xmpBuffer).ToLocalChecked());
 }
 

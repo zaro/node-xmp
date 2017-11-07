@@ -23,7 +23,11 @@ NAN_MODULE_INIT(InitAll){
     Nan::New("fileFlags").ToLocalChecked(),
     BuildFileOptions()
   );
-
+  Nan::Set(
+    target,
+    Nan::New("serializeFlags").ToLocalChecked(),
+    BuildSerializeOptions()
+  );
   SXMPMetaWrapper::Init(target);
   SXMPFilesWrapper::Init(target);
 }
