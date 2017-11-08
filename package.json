@@ -13,6 +13,9 @@
     "node-cmake": "^2.3.2"
   },
   "jest": {
-    "moduleDirectories": ["node_modules", "."]
+    "moduleDirectories": [
+      "node_modules",
+      "."
+    ]
   }
 }
