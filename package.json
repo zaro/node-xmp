@@ -4,7 +4,8 @@
   "description": "Binding for the Adobe XMP SDK",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "cmake-js compile"
   },
   "author": "",
   "license": "ISC",
