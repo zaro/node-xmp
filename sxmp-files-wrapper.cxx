@@ -4,10 +4,6 @@
 using namespace std;
 
 NAN_MODULE_INIT(SXMPFilesWrapper::Init) {
-  string moduleDir = getModuleDir();
-  moduleDir += "xfplugins/";
-  // printf("moduleDir: %s\n", moduleDir.data());
-  SXMPFiles::Initialize(moduleDir.data());
 
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("XMPFile").ToLocalChecked());
@@ -24,6 +20,19 @@ NAN_MODULE_INIT(SXMPFilesWrapper::Init) {
 
   constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
   Nan::Set(target, Nan::New("XMPFile").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+
+  string moduleDir = getModuleDir();
+  moduleDir += "xfplugins/";
+  XMP_OptionBits initOptions = 0;
+#ifdef UNIX_ENV
+  initOptions = kXMPFiles_IgnoreLocalText;
+#endif
+  try {
+    SXMPFiles::Initialize(initOptions, moduleDir.data());
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
+  }
+
 }
 
 Nan::Persistent<v8::Function> SXMPFilesWrapper::constructor;
@@ -38,7 +47,11 @@ NAN_METHOD(SXMPFilesWrapper::New) {
   if (info.IsConstructCall()) {
     // Invoked as constructor: `new MyObject(...)`
     SXMPFilesWrapper *obj;
-    obj = new SXMPFilesWrapper();
+    try {
+      obj = new SXMPFilesWrapper();
+    } catch(const XMP_Error &e){
+      Nan::ThrowError(e.GetErrMsg());
+    }
     obj->Wrap(info.This());
     info.GetReturnValue().Set(info.This());
   } else {
@@ -57,8 +70,12 @@ NAN_METHOD(SXMPFilesWrapper::OpenFile) {
   v8::String::Utf8Value filename(Nan::To<v8::String>(filenameArg).ToLocalChecked());
 
   SXMPFilesWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPFilesWrapper>(info.This());
-  bool r = obj->files.OpenFile(*filename, kXMP_UnknownFile, fileOpts);
-  info.GetReturnValue().Set(Nan::New(r));
+  try {
+    bool r = obj->files.OpenFile(*filename, kXMP_UnknownFile, fileOpts);
+    info.GetReturnValue().Set(Nan::New(r));
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
+  }
 }
 
 NAN_METHOD(SXMPFilesWrapper::IsMetadataWritable) {
@@ -83,7 +100,11 @@ NAN_METHOD(SXMPFilesWrapper::CloseFile) {
   XMP_OptionBits fileOpts = Nan::To<uint32_t>(info[0]).FromMaybe(0);
 
   SXMPFilesWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPFilesWrapper>(info.This());
-  obj->files.CloseFile(fileOpts);
+  try {
+    obj->files.CloseFile(fileOpts);
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
+  }
 }
 
 
@@ -91,7 +112,11 @@ NAN_METHOD(SXMPFilesWrapper::GetFileInfo) {
   XMP_FileFormat format;
   XMP_OptionBits openFlags, handlerFlags;
   SXMPFilesWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPFilesWrapper>(info.This());
-  obj->files.GetFileInfo ( 0, &openFlags, &format, &handlerFlags );
+  try {
+    obj->files.GetFileInfo ( 0, &openFlags, &format, &handlerFlags );
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
+  }
 
   v8::Local<v8::Object> rval = Nan::New<v8::Object>();
   rval->Set(Nan::New("handlerFlags").ToLocalChecked(), Nan::New((uint32_t)handlerFlags));
@@ -140,7 +165,11 @@ NAN_METHOD(SXMPFilesWrapper::PutXMP) {
   SXMPMetaWrapper* xmpMetaWrapper = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(Nan::To<v8::Object>(info[0]).ToLocalChecked());
 
   SXMPFilesWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPFilesWrapper>(info.This());
-  obj->files.PutXMP( xmpMetaWrapper->meta );
+  try {
+    obj->files.PutXMP( xmpMetaWrapper->meta );
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
+  }
 }
 
 
@@ -151,7 +180,10 @@ NAN_METHOD(SXMPFilesWrapper::CanPutXMP) {
   SXMPMetaWrapper* xmpMetaWrapper = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(Nan::To<v8::Object>(info[0]).ToLocalChecked());
 
   SXMPFilesWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPFilesWrapper>(info.This());
-  bool ok = obj->files.CanPutXMP( xmpMetaWrapper->meta );
-
-  info.GetReturnValue().Set(ok);
+  try {
+    bool ok = obj->files.CanPutXMP( xmpMetaWrapper->meta );
+    info.GetReturnValue().Set(ok);
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
+  }
 }

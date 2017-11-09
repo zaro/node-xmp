@@ -66,7 +66,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     sudo add-apt-repository ppa:george-edison55/cmake-3.x -y
     apt-get update
-    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.6/install.sh | bash
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.6/install.sh | sudo -u ubuntu bash
     apt-get install -y direnv cmake build-essential
   SHELL
 end

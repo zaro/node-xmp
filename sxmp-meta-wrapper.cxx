@@ -23,8 +23,6 @@ struct XmpProperty {
 
 
 NAN_MODULE_INIT(SXMPMetaWrapper::Init) {
-  SXMPMeta::Initialize();
-
   v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("XMPMeta").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
@@ -63,6 +61,11 @@ NAN_MODULE_INIT(SXMPMetaWrapper::Init) {
   Nan::SetMethod(target, "GetNamespaceURI", GetNamespaceURI);
   Nan::SetMethod(target, "DeleteNamespace", DeleteNamespace);
 
+  try {
+    SXMPMeta::Initialize();
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
+  }
 }
 
 Nan::Persistent<v8::Function> SXMPMetaWrapper::constructor;
@@ -88,7 +91,11 @@ NAN_METHOD(SXMPMetaWrapper::RegisterNamespace){
   v8::String::Utf8Value suggestedPrefix(Nan::To<v8::String>(info[1]).ToLocalChecked());
 
   string registered;
-  SXMPMeta::RegisterNamespace(*namespaceURI, *suggestedPrefix, &registered);
+  try {
+    SXMPMeta::RegisterNamespace(*namespaceURI, *suggestedPrefix, &registered);
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
+  }
   info.GetReturnValue().Set(Nan::New<v8::String>(registered).ToLocalChecked());
 }
 
@@ -97,9 +104,13 @@ NAN_METHOD(SXMPMetaWrapper::GetNamespacePrefix){
   v8::String::Utf8Value namespaceURI(Nan::To<v8::String>(info[0]).ToLocalChecked());
 
   string prefix;
-  bool registered = SXMPMeta::GetNamespacePrefix(*namespaceURI, &prefix);
-  if (registered){
-    info.GetReturnValue().Set(Nan::New<v8::String>(prefix).ToLocalChecked());
+  try {
+    bool registered = SXMPMeta::GetNamespacePrefix(*namespaceURI, &prefix);
+    if (registered){
+      info.GetReturnValue().Set(Nan::New<v8::String>(prefix).ToLocalChecked());
+    }
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
   }
 }
 
@@ -108,9 +119,13 @@ NAN_METHOD(SXMPMetaWrapper::GetNamespaceURI){
   v8::String::Utf8Value namespacePrefix(Nan::To<v8::String>(info[0]).ToLocalChecked());
 
   string uri;
-  bool registered = SXMPMeta::GetNamespaceURI(*namespacePrefix, &uri);
-  if (registered){
-    info.GetReturnValue().Set(Nan::New<v8::String>(uri).ToLocalChecked());
+  try {
+    bool registered = SXMPMeta::GetNamespaceURI(*namespacePrefix, &uri);
+    if (registered){
+      info.GetReturnValue().Set(Nan::New<v8::String>(uri).ToLocalChecked());
+    }
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
   }
 }
 
@@ -131,11 +146,15 @@ NAN_METHOD(SXMPMetaWrapper::New) {
     // Invoked as constructor: `new MyObject(...)`
     Nan::MaybeLocal<v8::String> maybeString = Nan::To<v8::String>(info[0]);
     SXMPMetaWrapper *obj;
-    if(maybeString.IsEmpty()){
-      obj = new SXMPMetaWrapper();
-    } else {
-      v8::String::Utf8Value filename(maybeString.ToLocalChecked());
-      obj = new SXMPMetaWrapper(*filename, filename.length());
+    try {
+      if(maybeString.IsEmpty()){
+        obj = new SXMPMetaWrapper();
+      } else {
+        v8::String::Utf8Value filename(maybeString.ToLocalChecked());
+        obj = new SXMPMetaWrapper(*filename, filename.length());
+      }
+    } catch(const XMP_Error &e){
+      Nan::ThrowError(e.GetErrMsg());
     }
     obj->Wrap(info.This());
     info.GetReturnValue().Set(info.This());
@@ -154,7 +173,11 @@ NAN_METHOD(SXMPMetaWrapper::Serialize) {
 
   SXMPMetaWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(info.This());
   string xmpBuffer;
-  obj->meta.SerializeToBuffer(&xmpBuffer, serializeOpts, padding);
+  try {
+    obj->meta.SerializeToBuffer(&xmpBuffer, serializeOpts, padding);
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
+  }
   info.GetReturnValue().Set(Nan::New<v8::String>(xmpBuffer).ToLocalChecked());
 }
 
@@ -165,13 +188,17 @@ NAN_METHOD(SXMPMetaWrapper::ListProperties) {
   SXMPMetaWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(info.This());
   std::vector<XmpProperty> propList;
 
-  SXMPIterator iter( obj->meta , iterOpts);
-  string schemaNS, propPath, propVal;
-  while( iter.Next( &schemaNS, &propPath, &propVal )){
-    if(propPath.size() == 0 && propVal.size() == 0){
-      continue;
+  try {
+    SXMPIterator iter( obj->meta , iterOpts);
+    string schemaNS, propPath, propVal;
+    while( iter.Next( &schemaNS, &propPath, &propVal )){
+      if(propPath.size() == 0 && propVal.size() == 0){
+        continue;
+      }
+      propList.push_back({schemaNS, propPath, propVal});
     }
-    propList.push_back({schemaNS, propPath, propVal});
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
   }
   v8::Local<v8::Array> rval = Nan::New<v8::Array>(propList.size());
   for(uint32_t i=0; i < propList.size(); ++i) {
@@ -432,10 +459,18 @@ NAN_METHOD(SXMPMetaWrapper::DoesQualifierExist) {
 
 NAN_METHOD(SXMPMetaWrapper::Sort) {
   SXMPMetaWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(info.This());
-  obj->meta.Sort();
+  try {
+    obj->meta.Sort();
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
+  }
 }
 
 NAN_METHOD(SXMPMetaWrapper::Erase) {
   SXMPMetaWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(info.This());
-  obj->meta.Erase();
+  try {
+    obj->meta.Erase();
+  } catch(const XMP_Error &e){
+    Nan::ThrowError(e.GetErrMsg());
+  }
 }

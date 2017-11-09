@@ -24,7 +24,7 @@ string(TOLOWER "${cmake_buildmode}" cmake_buildmode_lc)
 
 if(BUILD_64_BIT)
   set(cmake_buildbitdepth On) # 64bit
-  if(WIN32)
+  if(NOT APPLE)
     set(cmake_modesubdir _x64)
   else()
     set(cmake_modesubdir _64)
