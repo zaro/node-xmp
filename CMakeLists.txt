@@ -98,9 +98,27 @@ add_custom_command(TARGET XMPSDK POST_BUILD
       "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/xfplugins"
 )
 
-add_nodejs_module(${PROJECT_NAME} node-xmp.cxx sxmp-meta-wrapper.cxx sxmp-files-wrapper.cxx xmp-constants.cxx node-xmp.h node-xmp-os.h ${XMP_OS_SPECIFIC})
+# Build a shared library named after the project from the files in `src/`
+file(GLOB SOURCE_FILES "src/*.cxx" "src/*.h")
+if(WIN32)
+  file(GLOB SOURCE_FILES_OS "src/windows/*.cxx" "src/windows/*.h")
+else()
+  file(GLOB SOURCE_FILES_OS "src/unix/*.cxx" "src/unix/*.h")
+endif()
+add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${SOURCE_FILES_OS})
 add_dependencies(${PROJECT_NAME} XMPSDK)
+
+# Gives our library file a .node extension without any "lib" prefix
+set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
+
 add_definitions("-D${XMP_ENV}")
-include_directories("${XMPROOT}/public/include")
+
+include_directories("${XMPROOT}/public/include" "src/")
+# Essential include files to build a node addon,
+# You should add this line in every CMake.js based project
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_JS_INC})
+
 link_directories(${xmplibdir})
-target_link_libraries(${PROJECT_NAME} "${ld_xmplib_core}" "${ld_xmplib_files}")
+# Essential library files to link to a node addon
+# You should add this line in every CMake.js based project
+target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB} "${ld_xmplib_core}" "${ld_xmplib_files}")

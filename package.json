@@ -9,13 +9,17 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "jest": "^21.2.1",
-    "node-cmake": "^2.3.2"
+    "jest": "^21.2.1"
   },
   "jest": {
     "moduleDirectories": [
       "node_modules",
       "."
     ]
+  },
+  "dependencies": {
+    "bindings": "^1.3.0",
+    "cmake-js": "^3.5.0",
+    "nan": "^2.7.0"
   }
 }
