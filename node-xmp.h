@@ -14,7 +14,7 @@ class SXMPMetaWrapper : public Nan::ObjectWrap {
 
   private:
     SXMPMetaWrapper();
-    SXMPMetaWrapper(const char *buffer, size_t buffer_len);
+    SXMPMetaWrapper(const char *buffer, uint32_t buffer_len);
     SXMPMetaWrapper(const SXMPMeta& other);
 
     ~SXMPMetaWrapper();

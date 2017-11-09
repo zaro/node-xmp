@@ -70,7 +70,7 @@ Nan::Persistent<v8::Function> SXMPMetaWrapper::constructor;
 SXMPMetaWrapper::SXMPMetaWrapper(){
 }
 
-SXMPMetaWrapper::SXMPMetaWrapper(const char *buffer, size_t buffer_len)
+SXMPMetaWrapper::SXMPMetaWrapper(const char *buffer, uint32_t buffer_len)
   : meta(buffer, buffer_len) {
 }
 
@@ -149,8 +149,8 @@ NAN_METHOD(SXMPMetaWrapper::New) {
 }
 
 NAN_METHOD(SXMPMetaWrapper::Serialize) {
-  XMP_OptionBits serializeOpts = Nan::To<XMP_OptionBits>(info[0]).FromMaybe(0);
-  XMP_StringLen padding = Nan::To<XMP_OptionBits>(info[1]).FromMaybe(0);
+  XMP_OptionBits serializeOpts = Nan::To<uint32_t>(info[0]).FromMaybe(0);
+  XMP_StringLen padding = Nan::To<uint32_t>(info[1]).FromMaybe(0);
 
   SXMPMetaWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(info.This());
   string xmpBuffer;
@@ -160,12 +160,12 @@ NAN_METHOD(SXMPMetaWrapper::Serialize) {
 
 
 NAN_METHOD(SXMPMetaWrapper::ListProperties) {
-  Nan::Maybe<XMP_OptionBits> maybeOpts = Nan::To<XMP_OptionBits>(info[0]);
+  XMP_OptionBits iterOpts = Nan::To<uint32_t>(info[0]).FromMaybe(0);
 
   SXMPMetaWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(info.This());
   std::vector<XmpProperty> propList;
 
-  SXMPIterator iter( obj->meta , maybeOpts.FromMaybe(0));
+  SXMPIterator iter( obj->meta , iterOpts);
   string schemaNS, propPath, propVal;
   while( iter.Next( &schemaNS, &propPath, &propVal )){
     if(propPath.size() == 0 && propVal.size() == 0){
@@ -174,7 +174,7 @@ NAN_METHOD(SXMPMetaWrapper::ListProperties) {
     propList.push_back({schemaNS, propPath, propVal});
   }
   v8::Local<v8::Array> rval = Nan::New<v8::Array>(propList.size());
-  for(int i=0; i < propList.size(); ++i) {
+  for(uint32_t i=0; i < propList.size(); ++i) {
     Nan::Set(rval, i, propList[i].ToObject());
   }
   info.GetReturnValue().Set(rval);
@@ -189,7 +189,7 @@ NAN_METHOD(SXMPMetaWrapper::ListProperties) {
   ARG_LEN_CHECK(methodName, 3)\
   v8::String::Utf8Value schemaNS(Nan::To<v8::String>(info[0]).ToLocalChecked()); \
   v8::String::Utf8Value arrayName(Nan::To<v8::String>(info[1]).ToLocalChecked()); \
-  XMP_Index itemIndex = Nan::To<XMP_OptionBits>(info[2]).FromMaybe(-1);
+  int32_t itemIndex = Nan::To<int32_t>(info[2]).FromMaybe(-1);
 
 #define STRUCTFIELD_ARGS(methodName) \
   ARG_LEN_CHECK(methodName, 4)\
@@ -395,8 +395,6 @@ NAN_METHOD(SXMPMetaWrapper::DoesPropertyExist) {
 NAN_METHOD(SXMPMetaWrapper::DoesArrayItemExist) {
   ARRAYITEM_ARGS("DoesArrayItemExist");
 
-  std::string value;
-  XMP_OptionBits options;
   SXMPMetaWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(info.This());
   try {
     bool exists = obj->meta.DoesArrayItemExist(*schemaNS,*arrayName, itemIndex);
@@ -409,8 +407,6 @@ NAN_METHOD(SXMPMetaWrapper::DoesArrayItemExist) {
 NAN_METHOD(SXMPMetaWrapper::DoesStructFieldExist) {
   STRUCTFIELD_ARGS("DoesStructFieldExist");
 
-  std::string value;
-  XMP_OptionBits options;
   SXMPMetaWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(info.This());
   try {
     bool exists = obj->meta.DoesStructFieldExist(*schemaNS,*structName, *fieldNS, *fieldName);
@@ -423,8 +419,6 @@ NAN_METHOD(SXMPMetaWrapper::DoesStructFieldExist) {
 NAN_METHOD(SXMPMetaWrapper::DoesQualifierExist) {
   QUALIFIER_ARGS("DoesQualifierExist");
 
-  std::string value;
-  XMP_OptionBits options;
   SXMPMetaWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(info.This());
   try {
     bool exists = obj->meta.DoesQualifierExist(*schemaNS,*propName, *qualNS, *qualName);

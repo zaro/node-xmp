@@ -24,14 +24,22 @@ string(TOLOWER "${cmake_buildmode}" cmake_buildmode_lc)
 
 if(BUILD_64_BIT)
   set(cmake_buildbitdepth On) # 64bit
-  set(cmake_modesubdir _64)
+  if(WIN32)
+    set(cmake_modesubdir _x64)
+  else()
+    set(cmake_modesubdir _64)
+  endif()
+  set(win_arch "Win64")
 else()
   set(cmake_buildbitdepth Off) # 64bit
   set(cmake_modesubdir "")
+  set(win_arch "")
 endif()
 
 if(APPLE)
-  set(TOOLCHAIN ToolchainLLVM.cmake)
+  set(cmake_generator ${CMAKE_GENERATOR})
+  set(XMP_ENV "MAC_ENV")
+  set(TOOLCHAIN "-DCMAKE_TOOLCHAIN_FILE=${XMPROOT}/build/shared/ToolchainLLVM.cmake")
   set(compiler xcode)
   set(cmakedir "${compiler}/${cmake_buildtype}/${CMAKE_SYSTEM_NAME}${cmake_modesubdir}/${cmake_buildmode}")
   set(pdf_handler_dir "${XMPROOT}/XMPFilesPlugins/PDF_Handler/macintosh/intel${cmake_modesubdir}")
@@ -40,9 +48,13 @@ if(APPLE)
   set(ld_xmplib_core "-lXMPCoreStatic")
   set(ld_xmplib_files "-lXMPFilesStatic")
 
+  set(XMP_OS_SPECIFIC "node-xmp-unix.cxx")
+
 endif()
 if(NOT APPLE AND UNIX)
-  set(TOOLCHAIN ToolchainGCC.cmake)
+  set(cmake_generator ${CMAKE_GENERATOR})
+  set(XMP_ENV "UNIX_ENV")
+  set(TOOLCHAIN "-DCMAKE_TOOLCHAIN_FILE=${XMPROOT}/build/shared/ToolchainGCC.cmake")
   set(compiler gcc)
   set(cmakedir "${compiler}/${cmake_buildtype}/${CMAKE_SYSTEM_NAME}${cmake_modesubdir}/${cmake_buildmode}")
   set(pdf_handler_dir "${XMPROOT}/XMPFilesPlugins/PDF_Handler/macintosh/intel${cmake_modesubdir}")
@@ -51,14 +63,31 @@ if(NOT APPLE AND UNIX)
   set(ld_xmplib_core "${xmplibdir}/staticXMPCore.ar")
   set(ld_xmplib_files "${xmplibdir}/staticXMPFiles.ar")
 
+  set(XMP_OS_SPECIFIC "node-xmp-unix.cxx")
+
+endif()
+if(WIN32)
+  set(cmake_generator "Visual Studio 14 2015 ${win_arch}")
+  set(XMP_ENV "WIN_ENV")
+  set(TOOLCHAIN "")
+  set(compiler vc14)
+  set(cmakedir "${compiler}/${cmake_buildtype}/windows${cmake_modesubdir}")
+  set(pdf_handler_dir "${XMPROOT}/XMPFilesPlugins/PDF_Handler/windows/windows${cmake_modesubdir}")
+
+  set(xmplibdir "${XMPROOT}/public/libraries/windows${cmake_modesubdir}/${cmake_buildmode}")
+  set(ld_xmplib_core "${xmplibdir}/XMPCoreStatic.lib")
+  set(ld_xmplib_files "${xmplibdir}/XMPFilesStatic.lib")
+
+  set(XMP_OS_SPECIFIC "node-xmp-win.cxx")
+
 endif()
 
 ExternalProject_Add(
   XMPSDK
 
   SOURCE_DIR "${XMPROOT}/build/"
-  CMAKE_GENERATOR ${CMAKE_GENERATOR}
-  CMAKE_ARGS --debug "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/XMPSDK" "-DCMAKE_CL_64=${cmake_buildbitdepth}" "-DCMAKE_BUILD_TYPE=${cmake_buildmode}" "-DXMP_CMAKEFOLDER_NAME=${cmakedir}" "-DXMP_BUILD_STATIC=${cmake_build_static}" "-DCMAKE_TOOLCHAIN_FILE=${XMPROOT}/build/shared/${TOOLCHAIN}"
+  CMAKE_GENERATOR ${cmake_generator}
+  CMAKE_ARGS --debug "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/XMPSDK" "-DCMAKE_CL_64=${cmake_buildbitdepth}" "-DCMAKE_BUILD_TYPE=${cmake_buildmode}" "-DXMP_CMAKEFOLDER_NAME=${cmakedir}" "-DXMP_BUILD_STATIC=${cmake_build_static}"  ${TOOLCHAIN}
   INSTALL_COMMAND cmake -E echo "Skipping install step."
 )
 
@@ -69,19 +98,9 @@ add_custom_command(TARGET XMPSDK POST_BUILD
       "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}/xfplugins"
 )
 
-set(XMP_SDK_CXX_FLAGS "-I${XMPROOT}/public/include -DMAC_ENV")
-set(XMP_SDK_LD_FLAGS "-L${xmplibdir}")
-
-set(CMAKE_CXX_FLAGS_DEBUG "${XMP_SDK_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS_MINSIZEREL "${XMP_SDK_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${XMP_SDK_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS_RELEASE "${XMP_SDK_CXX_FLAGS}")
-
-set(CMAKE_EXE_LINKER_FLAGS "${XMP_SDK_LD_FLAGS}")
-set(CMAKE_MODULE_LINKER_FLAGS "${XMP_SDK_LD_FLAGS}")
-set(CMAKE_SHARED_LINKER_FLAGS "${XMP_SDK_LD_FLAGS}")
-set(CMAKE_STATIC_LINKER_FLAGS "${XMP_SDK_LD_FLAGS}")
-
-add_nodejs_module(${PROJECT_NAME} node-xmp.cxx sxmp-meta-wrapper.cxx sxmp-files-wrapper.cxx xmp-constants.cxx node-xmp.h)
+add_nodejs_module(${PROJECT_NAME} node-xmp.cxx sxmp-meta-wrapper.cxx sxmp-files-wrapper.cxx xmp-constants.cxx node-xmp.h node-xmp-os.h ${XMP_OS_SPECIFIC})
 add_dependencies(${PROJECT_NAME} XMPSDK)
+add_definitions("-D${XMP_ENV}")
+include_directories("${XMPROOT}/public/include")
+link_directories(${xmplibdir})
 target_link_libraries(${PROJECT_NAME} "${ld_xmplib_core}" "${ld_xmplib_files}")

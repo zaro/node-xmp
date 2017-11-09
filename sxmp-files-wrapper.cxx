@@ -1,16 +1,7 @@
 #include "node-xmp.h"
-#include <dlfcn.h>
+#include "node-xmp-os.h"
 
 using namespace std;
-
-string getModuleDir(){
-  Dl_info dl_info;
-  dladdr((void *)SXMPFilesWrapper::Init, &dl_info);
-  string moduleDir(dl_info.dli_fname);
-  size_t lastSlash = moduleDir.rfind('/');
-  moduleDir.erase(lastSlash + 1);
-  return moduleDir;
-}
 
 NAN_MODULE_INIT(SXMPFilesWrapper::Init) {
   string moduleDir = getModuleDir();
@@ -52,34 +43,34 @@ NAN_METHOD(SXMPFilesWrapper::New) {
     info.GetReturnValue().Set(info.This());
   } else {
     // Invoked as plain function `MyObject(...)`, turn into construct call.
-    const int argc = 0;
-    v8::Local<v8::Value> argv[argc] = {};
+    // const int argc = 0;
+    // v8::Local<v8::Value> argv[argc] = {};
     v8::Local<v8::Function> cons = Nan::New(constructor);
-    info.GetReturnValue().Set(cons->NewInstance(argc, argv));
+    info.GetReturnValue().Set(cons->NewInstance(0, NULL));
   }
 }
 
 NAN_METHOD(SXMPFilesWrapper::OpenFile) {
   v8::Local<v8::String> filenameArg = Nan::To<v8::String>(info[0]).ToLocalChecked();
-  Nan::Maybe<XMP_OptionBits> fileOpts = Nan::To<XMP_OptionBits>(info[1]);
+  XMP_OptionBits fileOpts = Nan::To<uint32_t>(info[1]).FromMaybe(0);
 
   v8::String::Utf8Value filename(Nan::To<v8::String>(filenameArg).ToLocalChecked());
 
   SXMPFilesWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPFilesWrapper>(info.This());
-  bool r = obj->files.OpenFile(*filename, kXMP_UnknownFile, fileOpts.FromMaybe(0));
+  bool r = obj->files.OpenFile(*filename, kXMP_UnknownFile, fileOpts);
   info.GetReturnValue().Set(Nan::New(r));
 }
 
 NAN_METHOD(SXMPFilesWrapper::IsMetadataWritable) {
   v8::Local<v8::String> filenameArg = Nan::To<v8::String>(info[0]).ToLocalChecked();
-  Nan::Maybe<XMP_OptionBits> fileOpts = Nan::To<XMP_OptionBits>(info[1]);
+  XMP_OptionBits fileOpts = Nan::To<uint32_t>(info[1]).FromMaybe(0);
 
   v8::String::Utf8Value filename(Nan::To<v8::String>(filenameArg).ToLocalChecked());
 
   SXMPFilesWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPFilesWrapper>(info.This());
   try {
     bool isWritable;
-    bool r = obj->files.IsMetadataWritable(*filename, &isWritable, kXMP_UnknownFile, fileOpts.FromMaybe(0));
+    bool r = obj->files.IsMetadataWritable(*filename, &isWritable, kXMP_UnknownFile, fileOpts);
     if(r){
       info.GetReturnValue().Set(Nan::New(isWritable));
     }
@@ -89,10 +80,10 @@ NAN_METHOD(SXMPFilesWrapper::IsMetadataWritable) {
 }
 
 NAN_METHOD(SXMPFilesWrapper::CloseFile) {
-  Nan::Maybe<XMP_OptionBits> fileOpts = Nan::To<XMP_OptionBits>(info[0]);
+  XMP_OptionBits fileOpts = Nan::To<uint32_t>(info[0]).FromMaybe(0);
 
   SXMPFilesWrapper* obj = Nan::ObjectWrap::Unwrap<SXMPFilesWrapper>(info.This());
-  obj->files.CloseFile(fileOpts.FromMaybe(0));
+  obj->files.CloseFile(fileOpts);
 }
 
 
@@ -103,8 +94,8 @@ NAN_METHOD(SXMPFilesWrapper::GetFileInfo) {
   obj->files.GetFileInfo ( 0, &openFlags, &format, &handlerFlags );
 
   v8::Local<v8::Object> rval = Nan::New<v8::Object>();
-  rval->Set(Nan::New("handlerFlags").ToLocalChecked(), Nan::New(handlerFlags));
-  rval->Set(Nan::New("openFlags").ToLocalChecked(), Nan::New(openFlags));
+  rval->Set(Nan::New("handlerFlags").ToLocalChecked(), Nan::New((uint32_t)handlerFlags));
+  rval->Set(Nan::New("openFlags").ToLocalChecked(), Nan::New((uint32_t)openFlags));
   char sformat[6];
   sprintf( sformat, "%.4s", reinterpret_cast<char *>(&format));
   swap(sformat[0], sformat[3]);
@@ -113,16 +104,15 @@ NAN_METHOD(SXMPFilesWrapper::GetFileInfo) {
     sformat[i] = 0;
   }
   rval->Set(Nan::New("format").ToLocalChecked(), Nan::New(sformat).ToLocalChecked());
-  rval->Set(Nan::New("formatCode").ToLocalChecked(), Nan::New(format));
+  rval->Set(Nan::New("formatCode").ToLocalChecked(), Nan::New((uint32_t)format));
 
 
   info.GetReturnValue().Set(rval);
 }
 
 NAN_METHOD(SXMPFilesWrapper::GetXMP) {
-  v8::Local<v8::Value> argv[0] = {};
   v8::Local<v8::Function> cons = Nan::New(SXMPMetaWrapper::constructor);
-  v8::Local<v8::Object> metaWrapped = cons->NewInstance(0, argv);
+  v8::Local<v8::Object> metaWrapped = cons->NewInstance(0, NULL);
   SXMPMetaWrapper* xmpMetaWrapper = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(metaWrapped);
 
   XMP_PacketInfo xmpPacket;
