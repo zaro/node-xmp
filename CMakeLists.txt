@@ -32,8 +32,8 @@ if(APPLE)
   set(pdf_handler_dir "${XMPROOT}/XMPFilesPlugins/PDF_Handler/macintosh/intel${cmake_modesubdir}")
 
   set(xmplibdir "${XMPROOT}/public/libraries/macintosh/intel${cmake_modesubdir}/${cmake_buildtype_lc}")
-  set(ld_xmplib_core "-lXMPCoreStatic")
-  set(ld_xmplib_files "-lXMPFilesStatic")
+  set(ld_xmplib_core "${xmplibdir}/libXMPCoreStatic.a")
+  set(ld_xmplib_files "${xmplibdir}/libXMPFilesStatic.a")
 
 endif()
 if(NOT APPLE AND UNIX)
@@ -95,7 +95,6 @@ include_directories("${XMPROOT}/public/include" "src/")
 # You should add this line in every CMake.js based project
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_JS_INC})
 
-link_directories(${xmplibdir})
 # Essential library files to link to a node addon
 # You should add this line in every CMake.js based project
 target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB} "${ld_xmplib_core}" "${ld_xmplib_files}")
