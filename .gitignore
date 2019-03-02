@@ -1,4 +1,5 @@
 /build
+/prebuilds
 .DS_Store
 .vagrant
 *.swp
