@@ -21,7 +21,7 @@
 #include <set>
 
 namespace XMP_COMPONENT_INT_NAMESPACE {
-	
+
 	class ConfigurableImpl
 		: public virtual IConfigurable_I
 	{
@@ -38,7 +38,7 @@ namespace XMP_COMPONENT_INT_NAMESPACE {
 
 		using IConfigurable_I::SetParameter;
 		using IConfigurable_I::GetParameter;
-		
+
 		virtual void APICALL SetParameter( const uint64 & key, eDataType type, const CombinedDataValue & value );
 		virtual bool APICALL GetParameter( const uint64 & key, eDataType type, CombinedDataValue & value ) const;
 		virtual bool APICALL RemoveParameter( const uint64 & key );

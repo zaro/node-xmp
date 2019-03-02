@@ -29,8 +29,8 @@ function(SetupTargetArchitecture)
 endfunction(SetupTargetArchitecture)
 
 # ==============================================================================
-# Function: Set internal build target directory. See ${COMPONENT}_PLATFORM_FOLDER for 
-# further construction and when CMAKE_CFG_INTDIR/CMAKE_BUILD_TYPE are set 
+# Function: Set internal build target directory. See ${COMPONENT}_PLATFORM_FOLDER for
+# further construction and when CMAKE_CFG_INTDIR/CMAKE_BUILD_TYPE are set
 # (generator dependent).
 # ==============================================================================
 function(SetupInternalBuildDirectory)
@@ -64,30 +64,21 @@ function(SetupCompilerFlags)
 	    set(OUTPUT_VARIABLE "")
 		# Execute GCC with the -dumpversion option, to give us a version string
 		execute_process(COMMAND ${CMAKE_CXX_COMPILER} "-dumpversion" OUTPUT_VARIABLE GCC_VERSION_STRING)
-	
+
 		# Match only the major and minor versions of the version string
 		string(REGEX MATCH "[0-9]+.[0-9]+.[0-9]" GCC_MAJOR_MINOR_VERSION_STRING "${GCC_VERSION_STRING}")
-	
+
 		# Strip out the period between the major and minor versions
 		string(REGEX REPLACE "\\." "" ${COMPONENT}_VERSIONING_GCC_VERSION "${GCC_MAJOR_MINOR_VERSION_STRING}")
-	
+
 		# Set the GCC versioning toolset
 		if(NOT DEFINED ${COMPONENT}_TOOLSET)
 			set(${COMPONENT}_VERSIONING_GCC_VERSION "${${COMPONENT}_VERSIONING_GCC_VERSION}" PARENT_SCOPE)
 			set(${COMPONENT}_TOOLSET "-D${COMPONENT}_TOOLSET_GCC${${COMPONENT}_VERSIONING_GCC_VERSION}" PARENT_SCOPE)
 		endif()
-	
-		# workaround for visibility problem and gcc 4.1.x
-		if(${${COMPONENT}_VERSIONING_GCC_VERSION} LESS 413)
-			# only remove inline hidden...
-			string(REGEX REPLACE "-fvisibility-inlines-hidden" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-		endif()
-		if(${${COMPONENT}_VERSIONING_GCC_VERSION} EQUAL 482)
-			#include path -I ${GNU_BASE}/include/c++/4.8.2/x86_64-unknown-linux-gnu
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I ${CMAKE_FIND_ROOT_PATH}/include/c++/4.8.2/x86_64-unknown-linux-gnu")
-		endif()
+
 	endif()
-	
+
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${${COMPONENT}_PREPROCESSOR_FLAGS}" PARENT_SCOPE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${${COMPONENT}_PREPROCESSOR_FLAGS}" PARENT_SCOPE)
 endfunction(SetupCompilerFlags)
@@ -101,15 +92,15 @@ function(SetupGeneralDirectories)
 	set(PROJECT_ROOT ${PROJECT_SOURCE_DIR} PARENT_SCOPE)
 	set(SOURCE_ROOT ${PROJECT_SOURCE_DIR}/../source PARENT_SCOPE)
 	set(RESOURCE_ROOT ${PROJECT_SOURCE_DIR}/../resource PARENT_SCOPE)
-	
+
 	# ==============================================================================
 	# ${COMPONENT} specific defines
 	# ==============================================================================
-	
+
 	# Construct output directory
 	# The CMAKE_CFG_INTDIR gets automatically set for generators which differenciate different build targets (eg. VS, XCode), but is emtpy for Linux !
 	# In this case Debug/Release is added to the OUTPUT_DIR when used for LIBRARY_OUTPUT_PATH.
-	
+
 	string(TOLOWER ${${COMPONENT}_BUILDMODE_DIR} LOWERCASE_${COMPONENT}_BUILDMODE_DIR)
 	set(OUTPUT_DIR ${PROJECT_SOURCE_DIR}/${${COMPONENT}_THIS_PROJECT_RELATIVEPATH}/public/libraries/${${COMPONENT}_PLATFORM_FOLDER}/${LOWERCASE_${COMPONENT}_BUILDMODE_DIR} PARENT_SCOPE)
 
@@ -165,8 +156,8 @@ function(SetOutputPath path isExecutable)
 	else()
 		set(correctedPath ${path})
 	endif()
-	
-	# 
+
+	#
 	if(isExecutable)
 		set(EXECUTABLE_OUTPUT_PATH ${correctedPath} PARENT_SCOPE)
 		#message("SetOutputPath: Set EXECUTABLE_OUTPUT_PATH to ${correctedPath} isExecutable=${isExecutable}")
@@ -206,14 +197,14 @@ function(AddLibraryAndDependencies targetName staticBuild isFramework sharedOrMo
 	else()
 		add_library(${targetName} ${sharedOrModule} ${${sourceFiles}})
 	endif()
-	
+
 	# message("-- ${targetName}: ${${dependencyList}}")
 	foreach(dependencyPair ${${dependencyList}})
 		string(REGEX MATCH "(ALL|DLL|STATIC):(.+)" matches ${dependencyPair})
-		
+
 		set(buildScope ${CMAKE_MATCH_1})
 		set(theDependencies ${CMAKE_MATCH_2})
-		
+
 		if(${buildScope} MATCHES "ALL")
 			set(final_dependencies ${final_dependencies} ${theDependencies})
 		elseif(${buildScope} MATCHES "DLL")
@@ -226,12 +217,12 @@ function(AddLibraryAndDependencies targetName staticBuild isFramework sharedOrMo
 			endif()
 		endif()
 	endforeach()
-	
+
 	if(final_dependencies)
 		add_dependencies(${targetName} ${final_dependencies})
 		# message("-- final_dependencies: ${final_dependencies}")
 	endif()
-	
+
 	if(NOT staticBuild)
 		if(isFramework)
 			set_target_properties(${targetName} PROPERTIES FRAMEWORK true)
@@ -265,7 +256,7 @@ function(AddCompileFlags targetFlag flagList)
 endfunction(AddCompileFlags)
 
 # ==============================================================================
-# Function: Remove single flag from target var such as CMAKE_C_FLAGS 
+# Function: Remove single flag from target var such as CMAKE_C_FLAGS
 #           and CMAKE_CXX_FLAGS
 # ==============================================================================
 #
@@ -280,7 +271,7 @@ function(RemoveCompileFlag targetFlag flag)
 endfunction(RemoveCompileFlag)
 
 # ==============================================================================
-# Function: Remove flags from target var such as CMAKE_C_FLAGS 
+# Function: Remove flags from target var such as CMAKE_C_FLAGS
 #           and CMAKE_CXX_FLAGS
 # ==============================================================================
 #

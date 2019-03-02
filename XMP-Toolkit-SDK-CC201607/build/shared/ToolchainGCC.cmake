@@ -7,33 +7,27 @@
 # of the Adobe license agreement accompanying it.
 # =================================================================================================
 
-# Toolchain 
-include(CMakeForceCompiler)
+# Toolchain
 
 # this one is important
 set(CMAKE_SYSTEM_NAME Linux)
 
 #
 if(CMAKE_CL_64)
-	# where is the target environment 
+	# where is the target environment
 	set(CMAKE_FIND_ROOT_PATH  		"/usr/")
 	set(CMAKE_SYSTEM_LIBRARY_PATH  	"${CMAKE_FIND_ROOT_PATH}/")
 	set(CMAKE_SYSTEM_PROCESSOR 		"x86_64")
 
 else()
-	# where is the target environment 
+	# where is the target environment
 	set(CMAKE_FIND_ROOT_PATH  		"/usr/")
 	set(CMAKE_SYSTEM_LIBRARY_PATH  	"${CMAKE_FIND_ROOT_PATH}/")
 	set(CMAKE_SYSTEM_PROCESSOR 		"i386")
 endif()
 
-# specify the cross compiler
-CMAKE_FORCE_C_COMPILER("${CMAKE_SYSTEM_LIBRARY_PATH}/bin/gcc" GNU)
-CMAKE_FORCE_CXX_COMPILER("${CMAKE_SYSTEM_LIBRARY_PATH}/bin/g++" GNU)
 
-set(CMAKE_MAKE_PROGRAMM "${CMAKE_SYSTEM_LIBRARY_PATH}/bin/make")
-
-# specify to use secure settings 
+# specify to use secure settings
 set(XMP_ENABLE_SECURE_SETTINGS "ON")
 
 # search for programs in the build host directories

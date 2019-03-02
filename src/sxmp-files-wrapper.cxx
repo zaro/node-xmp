@@ -59,7 +59,7 @@ NAN_METHOD(SXMPFilesWrapper::New) {
     // const int argc = 0;
     // v8::Local<v8::Value> argv[argc] = {};
     v8::Local<v8::Function> cons = Nan::New(constructor);
-    info.GetReturnValue().Set(cons->NewInstance(0, NULL));
+    info.GetReturnValue().Set(Nan::NewInstance(cons).ToLocalChecked());
   }
 }
 
@@ -136,8 +136,8 @@ NAN_METHOD(SXMPFilesWrapper::GetFileInfo) {
 }
 
 NAN_METHOD(SXMPFilesWrapper::GetXMP) {
-  v8::Local<v8::Function> cons = Nan::New(SXMPMetaWrapper::constructor);
-  v8::Local<v8::Object> metaWrapped = cons->NewInstance(0, NULL);
+  v8::Local<v8::Function> cons = Nan::New(constructor);
+  v8::Local<v8::Object> metaWrapped = Nan::NewInstance(cons).ToLocalChecked();
   SXMPMetaWrapper* xmpMetaWrapper = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(metaWrapped);
 
   XMP_PacketInfo xmpPacket;

@@ -38,7 +38,7 @@ namespace XMP_COMPONENT_INT_NAMESPACE {
 
 	public:
 		TAllocator () {}
-		template <class U> TAllocator( const TAllocator<U>& ) {} 
+		template <class U> TAllocator( const TAllocator<U>& ) {}
 
 		typedef _Allocator_base<Ty>				Mybase;
 		typedef typename Mybase::value_type		value_type;
@@ -91,7 +91,7 @@ namespace XMP_COMPONENT_INT_NAMESPACE {
 	template< typename Ty > bool operator!=( const TAllocator< Ty > &, const TAllocator< Ty > & ) {
 		return false; // any two TAllocator< T >'s are the same
 	}
-	
+
 	extern TAllocator< spIUTF8String >													gTAllocatorUTF8String;
 
 }

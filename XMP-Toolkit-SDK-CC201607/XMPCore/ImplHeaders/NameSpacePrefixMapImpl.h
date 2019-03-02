@@ -39,8 +39,8 @@ namespace AdobeXMPCore_Int {
 		, public virtual ThreadSafeImpl
 	{
 	public:
-		typedef std::pair< spcIUTF8String, spcIUTF8String > NameSpacePrefixPair;
-		typedef std::map< spcIUTF8String, spcIUTF8String, IUTF8StringComparator, TAllocator< spcIUTF8String > > NameSpacePrefixMap;
+		typedef std::pair< const spcIUTF8String, spcIUTF8String > NameSpacePrefixPair;
+		typedef std::map< spcIUTF8String, spcIUTF8String, IUTF8StringComparator, TAllocator< NameSpacePrefixPair > > NameSpacePrefixMap;
 
 		NameSpacePrefixMapImpl();
 

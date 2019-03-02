@@ -6,7 +6,7 @@
 # NOTICE: Adobe permits you to use, modify, and distribute this file in accordance with the terms
 # of the Adobe license agreement accompanying it.
 # =================================================================================================
-# Toolchain 
+# Toolchain
 
 # This file is based off of the Platform/Darwin.cmake and Platform/UnixPaths.cmake
 # files which are included with CMake 2.8.4
@@ -23,9 +23,8 @@ set (APPLE True)
 set (APPLE_IOS True)
 
 # Force the compilers to gcc for iOS
-include(CMakeForceCompiler)
-CMAKE_FORCE_C_COMPILER (gcc gcc)
-CMAKE_FORCE_CXX_COMPILER (g++ g++)
+CMAKE_C_COMPILER (gcc gcc)
+CMAKE_CXX_COMPILER (g++ g++)
 
 # Skip the platform compiler checks for cross compiling
 set (CMAKE_CXX_COMPILER_WORKS TRUE)
@@ -44,7 +43,7 @@ set (CMAKE_C_OSX_CURRENT_VERSION_FLAG "-current_version ")
 set (CMAKE_CXX_OSX_COMPATIBILITY_VERSION_FLAG "${CMAKE_C_OSX_COMPATIBILITY_VERSION_FLAG}")
 set (CMAKE_CXX_OSX_CURRENT_VERSION_FLAG "${CMAKE_C_OSX_CURRENT_VERSION_FLAG}")
 
-# Hidden visibilty is required for cxx on iOS 
+# Hidden visibilty is required for cxx on iOS
 set (CMAKE_C_FLAGS "")
 set (CMAKE_CXX_FLAGS "-headerpad_max_install_names -fvisibility=hidden -fvisibility-inlines-hidden")
 
@@ -105,10 +104,10 @@ else()
 endif()
 set (CMAKE_IOS_DEVELOPER_ROOT ${CMAKE_IOS_DEVELOPER_ROOT} CACHE PATH "Location of iOS Platform")
 
-# Find and use the most recent iOS sdk 
+# Find and use the most recent iOS sdk
 if (NOT DEFINED CMAKE_IOS_SDK_ROOT)
 	file (GLOB _CMAKE_IOS_SDKS "${CMAKE_IOS_DEVELOPER_ROOT}/SDKs/*")
-	if (_CMAKE_IOS_SDKS) 
+	if (_CMAKE_IOS_SDKS)
 		list (SORT _CMAKE_IOS_SDKS)
 		list (REVERSE _CMAKE_IOS_SDKS)
 		list (GET _CMAKE_IOS_SDKS 0 CMAKE_IOS_SDK_ROOT)
