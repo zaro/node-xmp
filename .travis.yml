@@ -3,3 +3,6 @@ os:
   - linux
   - osx
   - windows
+
+osx_image: xcode6.4
+dist: xenial
