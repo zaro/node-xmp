@@ -4,6 +4,7 @@ include(ExternalProject)
 project(xmp VERSION 1.0.0)
 
 set( CMAKE_VERBOSE_MAKEFILE on )
+set (CMAKE_CXX_STANDARD 11)
 
 if(NODE_ARCH STREQUAL "x64")
   set(BUILD_64_BIT On) # 64bit
