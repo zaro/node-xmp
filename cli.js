@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const xmp = require('./');
 const commandLineArgs = require('command-line-args')
 
@@ -9,8 +11,10 @@ const options = commandLineArgs(optionDefinitions);
 console.log(options);
 for(const filename of options.files) {
   f = xmp.XMPFile()
+  console.log(f)
   f.OpenFile(filename, xmp.fileFlags.OpenForUpdate)
   m = f.GetXMP()
+  console.log(m)
 
   props = m.ListProperties()
   for(let prop of props){

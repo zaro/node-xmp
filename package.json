@@ -5,13 +5,15 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "install": "prebuild-install || cmake-js compile"
+    "install": "prebuild-install || cmake-js compile",
+    "prebuild": "prebuild --backend cmake-js --include-regex '.'",
+    "prebuild-all": "prebuild --backend cmake-js --include-regex '.' --all"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "jest": "^21.2.1",
-    "prebuild": "^8.1.2"
+    "prebuild": "https://github.com/zaro/prebuild.git"
   },
   "jest": {
     "moduleDirectories": [

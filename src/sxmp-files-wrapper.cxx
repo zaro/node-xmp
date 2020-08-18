@@ -136,7 +136,7 @@ NAN_METHOD(SXMPFilesWrapper::GetFileInfo) {
 }
 
 NAN_METHOD(SXMPFilesWrapper::GetXMP) {
-  v8::Local<v8::Function> cons = Nan::New(constructor);
+  v8::Local<v8::Function> cons = Nan::New(SXMPMetaWrapper::constructor);
   v8::Local<v8::Object> metaWrapped = Nan::NewInstance(cons).ToLocalChecked();
   SXMPMetaWrapper* xmpMetaWrapper = Nan::ObjectWrap::Unwrap<SXMPMetaWrapper>(metaWrapped);
 
